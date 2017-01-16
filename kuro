@@ -1,0 +1,99 @@
+include("iaFunction");
+
+var posEnemy = getCell(getNearestEnemy());
+var cellnoLDV = CellNoLdv(cellMe, cellEnemy);
+var cellLDV = CellLdv(cellMe, posEnemy);
+
+//on récupére l'id l'arme
+var arme = getWeapon();
+// On récupère l'ennemi le plus proche
+var enemy = getNearestEnemy();
+// on récupére la distance entre moi et l'enemy
+var distanceCell = getCellDistance(getCell(), getCell(enemy));
+// on récupére la porté max de l'arme actuel
+var maxRange = getWeaponMaxRange(arme);
+//tableau d'obstacle 
+var tabObstacle = getObstacles();
+// on récupère l'écard de distance entre l'enmie et nous
+var ecarDist = getPathLength(getCell(), getCell(enemy));
+
+var LDV = lineOfSight(getCell(),getCell(enemy));
+
+// prix chip
+var prixChipEtinCell = getChipCost(CHIP_SPARK);
+var prixChipRock = getChipCost(CHIP_ROCK);
+//id chip
+var chipIdEtincell = CHIP_SPARK;
+var chipIdRock = CHIP_ROCK;
+
+//prix arme
+var prixArme = getWeaponCost(arme);
+
+var tabOptifocus = getObstacles();
+setMagnumAndsetShotgun(cellMe, enemy, distanceCell);
+if(distanceCell > maxRange){
+	useChip(CHIP_SHIELD, getLeek());
+	useChip(CHIP_HELMET, getLeek());
+	
+		
+		moveToward(enemy, distanceCell - maxRange);	
+	if(!canUseWeapon(enemy) && getMP() <=0){
+		cFrape(prixChipEtinCell, enemy, chipIdEtincell);
+	}
+		
+}
+if (distanceCell <= maxRange){
+	if(getAbsoluteShield(enemy) > 60){
+		useChip(CHIP_SHIELD, getLeek());
+		useChip(CHIP_HELMET, getLeek());
+	
+		if(getTP() > 0){
+				while(!canUseWeapon(enemy)&& getMP() > 0 && distanceCell 				> 0) {
+					moveToward(enemy,1);
+				}
+				if(canUseWeapon(enemy)){
+					wFrape(enemy);
+					useChip(CHIP_ICE, enemy);
+					useChip(CHIP_PEBBLE, enemy);
+				}else{
+					cFrape(prixChipEtinCell, enemy,chipIdEtincell);
+				}
+		}
+		
+	}
+	if(getAbsoluteShield(enemy) <= 60){
+	useChip(CHIP_SHIELD, getLeek());
+		useChip(CHIP_HELMET, getLeek());
+		
+		if(getTP() > 0){
+			while(!canUseWeapon(enemy) && getMP() > 0&& distanceCell > 0){
+				moveToward(enemy,1);
+			}
+			if(canUseWeapon(enemy)){
+				wFrape(enemy);
+				useChip(CHIP_ICE, enemy);
+				useChip(CHIP_PEBBLE, enemy);
+			}else{
+				cFrape(prixChipEtinCell, enemy, chipIdEtincell);
+			}
+		}
+			
+	}
+	if(count(cellnoLDV)>0){
+		moveTowardCells(cellnoLDV);
+	}
+	else{
+		moveToward(enemy);
+	}
+	
+}	
+
+
+
+
+
+debug("ma cellule : " + getCell());
+debug("cellule avec ligne de vue : " + cellLDV);
+debug("cellule NO LDV : " + cellnoLDV);
+mark(cellnoLDV);
+

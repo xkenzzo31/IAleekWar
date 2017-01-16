@@ -1,0 +1,144 @@
+function wFrape(enemy){ 
+	// tant que je peux tiré et que tu peux utilisé l'arme sur l'énemie 
+    while(getWeaponCost(getWeapon()) <= getTP() && canUseWeapon(enemy)){ 
+	// je tente d'utilisé l'arme sur l'enemie
+      useWeapon(enemy); 
+    }	
+}
+// Funcion Chip Frape
+function cFrape(chipPrice,enemy,chipId){
+	// tant que j'ai des TP et que je peux utilisé ChipId sur enmy
+	while(chipPrice<= getTP() && canUseChip(chipId, enemy)){
+		// je tente d'utilisé chipId sur enemy
+		useChip(chipId, enemy);
+	}
+}
+
+
+// function celulle accèsible par mon poirreau
+function cellulAccMe(leek1){
+	// tableau de celule a analysé 
+	var tabCellToAnalyse = [];
+	//tableau retourné 
+	var tabReturn = [];
+	// tableau tempon pour métre a jour tabCellToAnalyse
+	var temp = [];
+	// on atribus notre première valeur a tabCellToAnalyse notre cellule 
+	tabCellToAnalyse[0] = getCell(leek1);
+	// de même pour tabReturn
+	tabReturn[0] = getCell(leek1);
+	// on crée une boucle qui sera parcourus MP foi 
+	for(var pm = 0; pm < getMP(leek1);pm++){
+		// on parcours notre tableau de cell analisé avec i comme objet
+		for(var i in tabCellToAnalyse){
+			/* on crée une variable x qui prend la cardination X de la cellule a analysé*/
+			var x = getCellX(i);
+			// de même pour Y
+			var y = getCellY(i);
+/* on récupére la cellule voisine par sa coordoné et on répéte cette action autent de foi qu'il y a de cellule a analysé*/
+			var cell = getCellFromXY(x+1, y);
+/* si notre cellule existe, si on la pas déja récupéré et si elle et dans les ID de la map*/
+			if((cell !== null) && (!inArray(tabReturn, cell)) && (cell >= 0 && cell < 613 && isEmptyCell(cell))){
+				// on push la cell dans notre tabReturn
+				push(tabReturn, cell);
+				// on la push dans notre tab tempon
+				push(temp, cell);
+			}
+      cell = getCellFromXY(x-1, y);
+			if((cell !== null) && (!inArray(tabReturn, cell)) && (cell >= 0 && cell < 613 && isEmptyCell(cell))){
+				push(tabReturn, cell);
+				push(temp, cell);
+			}
+      
+      cell = getCellFromXY(x, y+1);
+			if((cell !== null) && (!inArray(tabReturn, cell)) && (cell >= 0 && cell < 613 && isEmptyCell(cell))){
+				push(tabReturn, cell);
+				push(temp, cell);
+			}
+    
+      cell = getCellFromXY(x, y-1);
+			if((cell !== null) && (!inArray(tabReturn, cell)) && (cell >= 0 && cell < 613 && isEmptyCell(cell))){
+				push(tabReturn, cell);
+				push(temp, cell);
+			}
+		}
+		// on update tabCellToAnalyse
+		tabCellToAnalyse = temp;
+		//on ecrase temp
+		temp = [];
+		
+	}
+	// on retourne tabReturn
+	return tabReturn;
+}
+function enemiAccesCell(){
+	var leek1 = getNearestEnemy();
+	var tabReturn = cellulAccMe(leek1);
+	mark(tabReturn , COLOR_BLUE);
+	return tabReturn;
+}
+function myAccesCell(){
+	var leek1 = getLeek();
+	var tabReturn = cellulAccMe(leek1);
+	mark(tabReturn, COLOR_GREEN);
+	return tabReturn;
+}
+/*renvoi un tableau de cellule, parcours cellulAccMe et enregistre dans c l'objet actuel pareil pour cellulAccEnemy et si il n'y a pas de ligne de vue entre ma cellule accèsible parcourue et toute celle de l'aversére alors on la cellule accèsible parcourue dans notre tableau cellLibre qu'on retourne après avoir tout vérifié */	
+
+var cellMe = myAccesCell();
+var cellEnemy = enemiAccesCell();
+function CellNoLdv(cellMe, cellEnemy){
+	var cellLibre = [];
+	var tempon = false;
+	for(var c in cellMe){
+		for(var d in cellEnemy){
+			if(lineOfSight(c, d)){
+				tempon = true;
+			}
+		}
+		if(not tempon){
+			push(cellLibre, c);
+		}
+		tempon = false;
+	}
+	return cellLibre;
+}
+
+function CellLdv(cellMe, enemyPos){
+	var cellLibres = [];
+	for(var a in cellMe){
+		if(lineOfSight(a, enemyPos)){
+			push(cellLibres, a);
+		}
+	}
+	return cellLibres;
+}
+function setMagnumAndsetShotgun(cellMe,enemy,distance){
+	var cellEnemy = getCell(enemy);
+	for(var a in cellMe){
+		if (distance > 5 && isOnSameLine(a, cellEnemy) !== true) {
+    		if (getWeapon() != WEAPON_MAGNUM) {
+    	  		setWeapon(WEAPON_MAGNUM);
+  	  		}
+			break;
+ 		}
+ 		else if (distance <= 5 && isOnSameLine(a, cellEnemy)) { 
+   		 	if (getWeapon() != WEAPON_SHOTGUN) { 
+    				setWeapon(WEAPON_SHOTGUN); 
+			}
+			break;
+		}
+	}
+		
+}
+/*global opeCounter=0 ;
+
+function startOp(){
+  opeCounter = getOperations();
+}
+
+function stopOp(msg){
+    var chronoOpe = getOperations() - opeCounter - 6;
+    debugE(msg+" : "+chronoOpe);
+    opeCounter = getOperations();
+}*/

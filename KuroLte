@@ -1,0 +1,34 @@
+include("iaFunction");
+//--------------------------------
+//------- Code de base -----------
+//--------------------------------
+if(getTurn() == 1){
+	setWeapon(WEAPON_PISTOL); // Attention : coûte 1 PT
+}
+var enemy = getNearestEnemy();
+var arme = getWeapon();
+var posEnemy = getCell(getNearestEnemy());
+var cellnoLDV = CellNoLdv(cellMe, cellEnemy);
+var cellLDV = CellLdv(cellMe, posEnemy);
+var distanceCell = getCellDistance(getCell(), getCell(enemy));
+// on récupére la porté max de l'arme actuel
+var maxRange = getWeaponMaxRange(arme);
+// On récupère l'ennemi le plus proche
+
+if(distanceCell > maxRange){
+	moveToward(enemy, distanceCell - maxRange);
+}
+if(distanceCell <= maxRange){
+		if(( not canUseWeapon(enemy)&& getMP() > 0)) {
+			moveToward(enemy);
+		}
+		wFrape(enemy);
+		if(count(cellnoLDV) > 0){
+			moveTowardCells(cellnoLDV);
+		}
+		else if (count(cellnoLDV) == 0){
+			moveAwayFrom(enemy);
+		}
+}
+mark(cellnoLDV, COLOR_BLUE);
+
